@@ -1,0 +1,149 @@
+---
+title: "HowtoRMarkdown"
+author: "Audrey Salerno"
+date: "11/13/2023"
+output: html_document
+---
+
+Hi everyone, 
+
+I know some of you are curious on how to use R markdown... So, here I a giving you a basic markdown code in R rather than just the output which are those nice .html documents
+
+Below is what R markdown gives you every time you open a new markdown document...
+You may be asking... how do I open and create an R markdown in the first place? Well.... go up to File>New File>R Markdown. You'll see it a couple options below your regular R script.  I typically pick the output as an .html.
+
+# The Cookbook
+
+The RMarkdown cookbook is a great source on structuring your markdown documents.
+
+https://bookdown.org/yihui/rmarkdown-cookbook/
+
+# GIT(hub) yourself aquainted with github 
+
+Github is a great resource for organizing and maintaining your PhD data and R analytical files. 
+
+**Make a git account**
+
+https://github.com/
+
+**Information on setting GIT up on your computer.**
+
+https://www.freecodecamp.org/news/introduction-to-git-and-github/ 
+
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+## Headers...
+
+Note that when you use "#" outside of code chunks those can be used to create different levels of headers...
+# Header
+## Header
+### Header
+#### Header
+##### Etc... 
+
+## Emphasis
+
+**Look at that**
+
+*Or this*
+
+## Notes
+
+You can have a bunch of text outside your code chunks, but you can still leave notes to yourself using the old-fashioned comment
+
+```{r}
+pnorm(42,30,5, lower.tail=FALSE) #lower.tail=FALSE means that I am looking at the upper tail
+# no more 1- for me!!
+```
+
+## Extra examples
+
+Here is how I would put part of the module 7 practice problems in R... and you can knit it too... so you can see how it would look
+
+# 2. 
+
+**Students in the WWU Ski and Snowboard club were interested in assessing the snowpack data up at the Mt Baker ski area in November to predict how good the early season skiing may be. They wanted to compare 2018 to the previous year because snow conditions are so variable in the fall, and it is hard to tell if the averages could be considered different. . They were particularly interested to see if the average snowfall for November 2017 was different than the average for November 2018.**
+
+## Read in the data
+
+```{r}
+snow<-read.delim("snowdepth_data.txt", header=TRUE)
+```
+.... And good practice to plot it...
+
+```{r}
+boxplot(snow, ylab="Snow Depth")
+```
+
+### What are the variables in this example and what kind of variables are they?
+
+Let me look at the data...
+
+```{r}
+head(snow)
+```
+It looks to be continuous numerical data by two categories which are years. 
+
+Let's just look at the mean and std as well.
+
+
+### Assess the data for normality. Is it normal?
+
+To assess normality, I will take a look at a histogram and will run a shapiro wilkes test. 
+
+**November 2017**
+```{r}
+hist(snow$November_17)
+```
+
+**November 2018**
+```{r}
+hist(snow$November_18)
+```
+**Shapiro test for 2017**
+```{r}
+shapiro.test(snow$November_17)
+```
+
+**Shapiro test for 2018**
+```{r}
+shapiro.test(snow$November_18)
+```
+
+
+I would conclude based on both visual assessment via the histogram and the outcome of the normality tests that the data is not normally distributed. 
+
+### Plot the data using an appropriate plot.
+
+Let me just do my boxplot again...
+
+```{r}
+boxplot(snow)
+```
+
+### What test is the most appropriate to use to analyze the difference between means for this set of data?
+
+Paired two-sample t-test....
+
+## Reflection
+
+I hope that for any of you interested in Rmarkdown that this document may help you branch out and give it a try as a way to complete labs, work, and notes!
