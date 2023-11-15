@@ -16,7 +16,7 @@ I know some of you are curious on how to use R markdown... So, here I a giving y
 Below is what R markdown gives you every time you open a new markdown document...
 You may be asking... how do I open and create an R markdown in the first place? Well.... go up to File>New File>R Markdown. You'll see it a couple options below your regular R script.  I typically pick the output as an .html.
 
-# Overview of Markdown 
+# 1. Overview of Markdown 
 
 This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
 
@@ -26,16 +26,25 @@ When you click the **Knit** button a document will be generated that includes bo
 library(tidyverse)
 ```
 
+## 1.1 Markdown cookbook
+
+This link is to the 'cookbook' for RMarkdown. It has all of the information on formatting you could possibly need. 
+
+https://bookdown.org/yihui/rmarkdown-cookbook/
+
+
+## 1.2 Just some coding examples 
+
 ```{r iris}
 summary(iris)
 str(iris)
 ```
 
-## Including Plots
+## 1.3 Including Plots
 
 You can also embed plots, for example:
 
-```{r iris, echo=FALSE}
+```{r iris plot, echo=FALSE}
 ggplot(iris)+
   geom_boxplot(aes(x=Species, y=Sepal.Length, fill = Species)) + #insert important and intellectual comment here
   theme_bw()
@@ -43,28 +52,26 @@ ggplot(iris)+
 
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
 
-## Commenting 
+## 1.2 Commenting 
 
 You can have a bunch of text outside your code chunks, but you can still leave notes to yourself using the old-fashioned comment
 
-## Headers...
+## 1.3 Headers...
 
 Note that when you use "#" outside of code chunks those can be used to create different levels of headers...
 
-## Header
 ### Header
 #### Header
-##### Etc... 
+##### Header
+###### Etc... 
 
-## Emphasis
+## 1.4 Emphasis
 
 **Look at that**
 
 *Or this*
 
-## Notes
-
-## Are you tabbin kidding me? {.tabset}
+## 1.4 Tabs... Are you tabbin kidding me? {.tabset}
 
 ### This
 
@@ -80,31 +87,24 @@ What ever you please
 
 ## {-}
 
-# Biomass Example
+# 2. A note on data organization {.tabset}
 
-## Data read in
+## 2.1 RProject
 
-```{r}
+For all your data analysis, it is good to set up an RProject in RStudio to keep all your scripts and data in one place. This will ensure that you don't always need to set your working directory. The Project is linked to that directory. Within a project you can make folders, and it is a place to set the output of all your plots and .html. 
 
-```
+## 2.2 GIT(hub) yourself aquainted with github 
 
+Github can be very confusing and difficult to put on your computer... that being said, it is super useful for a cloud workspace when you are working with other people and want to be able to track iterations and work on projects at the same time.  If you want to set up github, find some tutorials. Sometimes it is easy other times it is difficult to set up.
 
-## Data Exploration {.tabset}
+**Information on setting GIT up on your computer.**
 
-### Data Structure
+https://www.freecodecamp.org/news/introduction-to-git-and-github/ 
 
-### Make a table
+**Information on GITHUB as a whole**
 
-### Plot it out
+https://github.com/
 
-## Calculating Biomass
+# 3. Short and sweet
 
-```{r}
-
-
-```
-
-
-
-
-
+That is all for the R markdown alone information... 
