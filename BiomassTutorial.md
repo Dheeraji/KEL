@@ -20,7 +20,7 @@ library(TapeR)
 In this RMarkdown, you will see some of the functionality in Markdown while also learning how to calculate above ground biomass for living and standing deadwood trees. All of the actual useful stats comes from the one and only Dheeraj!! :) 
 
 
-# 1. Data collection
+# 1. Data collection {.tabset}
 
 
 
@@ -37,6 +37,8 @@ We are pulling out...
 - Root biomass
 - Stem biomass
 
+**You'll notice that two forms of columns are being pulled for each equation. This is because there are two versions of each equation to fit both dbh thresholds - i.e. 6 cm and 10 cm** 
+
 
 ```r
 eq <- tbl(KELuser, "biomass_eq") %>%
@@ -47,13 +49,22 @@ eq <- tbl(KELuser, "biomass_eq") %>%
          stem_mass_f = gsub("ba_live_60", "ba_live_100", stem_mass_f))
 ```
 
-```
-## Warning: <PostgreSQLConnection> uses an old dbplyr interface
-## ℹ Please install a newer version of the package or contact the maintainer
-## This warning is displayed once every 8 hours.
+
+```r
+str(eq)
 ```
 
-**You'll notice that two forms of columns are being pulled for each equation. This is because there are two versions of each equation to fit both dbh thresholds - i.e. 6 cm and 10 cm** 
+```
+## tibble [66 × 6] (S3: tbl_df/tbl/data.frame)
+##  $ id             : int [1:66] 52 5 3 4 1 63 64 65 66 2 ...
+##  $ species        : chr [1:66] "Juniperus communis" "Pinus sylvestris" "Pinus cembra" "Pinus mugo" ...
+##  $ branches_mass_f: chr [1:66] "exp(-3.248 + 2.3695 * log(dbh_mm * 0.1) + (-0.0254 * ba)) * 1.00258646540519" "exp(-3.6641 + 2.1601 * log(dbh_mm * 0.1)) * 1.04508984648314" "exp(-3.6641 + 2.1601 * log(dbh_mm * 0.1)) * 1.04508984648314" "exp(-3.6641 + 2.1601 * log(dbh_mm * 0.1)) * 1.04508984648314" ...
+##  $ foliage_mass_f : chr [1:66] "exp(-2.6019 + 2.1097 * log(dbh_mm * 0.1) + (-0.0404 * ba)) * 1.01325784347909" "exp(-2.4122 + 1.8683 * log(dbh_mm * 0.1) + (-0.0537 * ba)) * 1.03396760040159" "exp(-2.4122 + 1.8683 * log(dbh_mm * 0.1) + (-0.0537 * ba)) * 1.03396760040159" "exp(-2.4122 + 1.8683 * log(dbh_mm * 0.1) + (-0.0537 * ba)) * 1.03396760040159" ...
+##  $ root_mass_f    : chr [1:66] "exp(-4.0287 + 2.4957 * log(dbh_mm * 0.1)) * 1.16862165974986" "exp(-3.6347 + 2.3038 * log(dbh_mm * 0.1)) * 0.950649723440268" "exp(-3.6347 + 2.3038 * log(dbh_mm * 0.1)) * 0.950649723440268" "exp(-3.6347 + 2.3038 * log(dbh_mm * 0.1)) * 0.950649723440268" ...
+##  $ stem_mass_f    : chr [1:66] "exp(-2.7693 + 2.3761 * log(dbh_mm * 0.1) + (0.0072 * ba)) * 1.03850427882888" "exp(-2.3583 + 2.308 * log(dbh_mm * 0.1)) * 1.03342764129309" "exp(-2.3583 + 2.308 * log(dbh_mm * 0.1)) * 1.03342764129309" "exp(-2.3583 + 2.308 * log(dbh_mm * 0.1)) * 1.03342764129309" ...
+```
+
+Allometric equations based on species/genus
 
 ### Wood density ~ n = 300
 
@@ -79,12 +90,13 @@ plot.id <- tbl(KELuser, "plot") %>%
   pull(id)
 ```
 
-# 2. Tree-level data (living)
+# 2. Tree-level data (living) {.tabset}
+
 ## 2.1 Live [standing] trees
 
 ```r
 tree.live <- tbl(KELuser, "tree") %>%
-  filter(plot_id %in% plot.id,
+  filter(plot_id %in% plot.id, # identify plots you want
          status %in% c(1:4), # specifying live trees
          !onplot %in% c(0, 99), # ! means to exclude those selections
          dbh_mm >= 100, # setting the dbh threshold to 10 cm
@@ -94,6 +106,20 @@ tree.live <- tbl(KELuser, "tree") %>%
   collect() %>% 
   ungroup()
 ```
+
+**Always good to visualize your data**
+
+
+```r
+tree.live %>%
+  ggplot() +
+  geom_boxplot(aes(x=species, y=dbh_mm))+
+  theme_bw()+
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1))
+```
+
+![](BiomassTutorial_files/figure-html/unnamed-chunk-8-1.png)<!-- -->
+
 
 ## 2.2 Basal area (living)
 
@@ -105,7 +131,7 @@ ba.live <- tree.live %>%
   mutate(dbh_cm = dbh_mm * 0.1,
          ba_100 = pi * dbh_mm ^2 / 4 / 1000000) %>%  # 1000000 mm per square metres
   group_by(plot_id, plotsize) %>%
-  summarise(ba = round(sum(ba_100) * 10000 / first(plotsize), 4)) %>%
+  summarise(ba = round(sum(ba_100) * 10000 / first(plotsize), 4)) %>% # cross sectional area of trees per plot
   ungroup()
 ```
 
@@ -199,7 +225,82 @@ biomass.plot <- biomass.tree %>%
 ```
 *Ignore the warning*
 
+### Visualize subset of plots
+
+I just selected a subset of plots (not random) and trimmed the species just to look at total biomass by plot by species. 
+
+
+
+```r
+#table(biomass.tree$species)
+biomass.tree %>% 
+   mutate(plot_id = as.factor(biomass.tree$plot_id)) %>%
+  select(plot_id, species, biomass_tree_total) %>%
+  filter(plot_id == c(188, 269, 290, 398, 477)) %>%
+  group_by(plot_id, species) %>%
+  summarise(specbiomass=sum(biomass_tree_total)) %>%
+  ggplot() + 
+  geom_col(aes(x=plot_id,y=specbiomass,
+                       fill=species,
+                       color=species)) +
+  theme_bw()
+```
+
+```
+## Warning: There were 2 warnings in `filter()`.
+## The first warning was:
+## ℹ In argument: `plot_id == c(188, 269, 290, 398, 477)`.
+## Caused by warning in `==.default`:
+## ! longer object length is not a multiple of shorter object length
+## ℹ Run `dplyr::last_dplyr_warnings()` to see the 1 remaining warning.
+```
+
+```
+## `summarise()` has grouped output by 'plot_id'. You can override using the
+## `.groups` argument.
+```
+
+![](BiomassTutorial_files/figure-html/unnamed-chunk-13-1.png)<!-- -->
+
+
+```r
+biomass.tree %>% 
+   mutate(plot_id = as.factor(biomass.tree$plot_id)) %>%
+  select(plot_id, species, biomass_tree_total) %>%
+  filter(plot_id == c(188, 269, 290, 398, 477)) %>%
+  group_by(plot_id, species) %>%
+  summarise(specbiomass=sum(biomass_tree_total)) %>%
+  group_by(plot_id) %>%
+  mutate(pct = specbiomass/sum(specbiomass)) %>%
+  ggplot() + 
+  geom_col(aes(x=plot_id,y=pct,
+                       fill=species,
+                       color=species)) + 
+  scale_y_continuous(labels = scales::percent, # calling function percent from the scales package
+                     breaks = seq(0,1,by=0.1)) +
+  theme_bw()
+```
+
+```
+## Warning: There were 2 warnings in `filter()`.
+## The first warning was:
+## ℹ In argument: `plot_id == c(188, 269, 290, 398, 477)`.
+## Caused by warning in `==.default`:
+## ! longer object length is not a multiple of shorter object length
+## ℹ Run `dplyr::last_dplyr_warnings()` to see the 1 remaining warning.
+```
+
+```
+## `summarise()` has grouped output by 'plot_id'. You can override using the
+## `.groups` argument.
+```
+
+![](BiomassTutorial_files/figure-html/unnamed-chunk-14-1.png)<!-- -->
+
+
 # 3.Tree level - dead [snags] {.tabset}
+
+## Gather data
 
 
 ```r
