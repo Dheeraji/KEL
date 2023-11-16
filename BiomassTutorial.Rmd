@@ -361,6 +361,14 @@ remove(ba.dead, ba.live, biomass.plot, biomass.tree, dbh, dbh.dead, dbh.live, eq
 }
 ```
 
+```{r}
+plot_biomass %>%
+  mutate(total_dead = (dead_standing+dead_cwd)) %>%
+  ggplot()+
+  geom_point(aes(x=total_dead,y=live, size = n_total, color = n_dead), alpha = 0.6)+
+  theme_bw()
+```
+
 # 5. Disconnect
 ```{r}
 poolClose(KELuser); remove(KELuser)
